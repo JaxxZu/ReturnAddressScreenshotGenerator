@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>退货页面 - Docare风格</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         :root {
             --bg-color: #f4f4f4;
@@ -14,39 +15,100 @@
             --orange-light: #fff0e6;
             --brown-btn: #3e3a39;
             --card-radius: 12px;
+            --oneui-navbar-bg: rgba(255, 255, 255, 1);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--primary-text);
-            padding-bottom: 80px;
+            padding-bottom: 125px; 
+            padding-top: 44px; /* 為固定狀態欄留出空間 */
         }
 
-        /* 顶部导航步骤 */
+        /* --- 優化：模擬系統狀態欄 (設置為始終最頂) --- */
+        .status-bar {
+            height: 44px;
+            background: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            position: fixed; /* 固定位置 */
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000; /* 確保在所有元素之上 */
+        }
+
+        .status-bar .icons {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .status-bar .icons svg {
+            width: 17px;
+            height: 17px;
+            fill: #000;
+        }
+
+        /* --- 優化：頂部導航列 --- */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: sticky;
+            top: 44px; /* 緊貼狀態欄下方 */
+            z-index: 100;
+            border-bottom: 0.5px solid rgba(0,0,0,0.05);
+        }
+
+        .back-icon {
+            font-size: 24px;
+            width: 40px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
         .step-nav {
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 15px;
-            background: #fff;
-            font-size: 14px;
+            font-size: 13px;
             color: var(--secondary-text);
         }
 
         .step-nav .active {
             color: var(--primary-text);
-            font-weight: bold;
+            font-weight: 700;
         }
 
-        .step-nav span {
-            margin: 0 5px;
+        .step-nav .separator {
+            margin: 0 8px;
+            color: #ddd;
+            font-size: 12px;
+        }
+
+        .more-icon {
+            font-size: 20px;
+            width: 40px;
+            text-align: right;
+            font-weight: bold;
         }
 
         /* 主标题区域 */
@@ -104,7 +166,6 @@
 
         .tab-item.active {
             background: #fff;
-            /* 实际上是被外层包裹，这里模拟选中态 */
             color: #8B4513;
             background-image: linear-gradient(to bottom, #fffbf7, #fff);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -165,6 +226,22 @@
             text-align: right;
         }
 
+        .editable-content {
+            padding: 4px;
+            border-radius: 4px;
+            transition: background 0.3s;
+            cursor: pointer;
+            outline: none;
+            display: inline-block;
+            word-break: break-all;
+            min-height: 1.5em;
+        }
+
+        .editable-content:focus {
+            background: #fdf2e9;
+            border: 1px dashed var(--orange);
+        }
+
         .copy-btn {
             color: var(--orange);
             border: 1px solid #ffdec2;
@@ -173,6 +250,7 @@
             font-size: 12px;
             margin-left: 5px;
             display: inline-block;
+            cursor: pointer;
         }
 
         /* 黑色按钮 */
@@ -246,7 +324,7 @@
         /* 底部操作栏 */
         .footer {
             position: fixed;
-            bottom: 0;
+            bottom: 48px; 
             left: 0;
             width: 100%;
             background: #fff;
@@ -254,17 +332,19 @@
             justify-content: flex-end;
             align-items: center;
             padding: 10px 15px;
-            box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
             gap: 10px;
+            z-index: 101;
         }
 
         .footer-btn {
-            padding: 8px 15px;
-            border-radius: 16px;
+            padding: 8px 18px;
+            border-radius: 20px;
             font-size: 13px;
             background: #fff;
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
             color: #333;
+            font-weight: 500;
         }
 
         .footer-left {
@@ -276,33 +356,86 @@
             color: var(--secondary-text);
         }
 
-        /* 顶部导航栏模拟 */
-        .top-bar {
+        /* --- 優化：One UI 風格安卓導航欄 --- */
+        .android-navbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 48px;
+            background: var(--oneui-navbar-bg);
+            backdrop-filter: blur(5px);
             display: flex;
+            justify-content: space-around;
             align-items: center;
-            padding: 10px;
-            background: #fff;
+            z-index: 102;
+            padding: 0 15%;
         }
 
-        .back-icon {
-            font-size: 20px;
-            margin-right: 10px;
+        .nav-key {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
         }
+
+        .nav-key svg {
+            width: 22px;
+            height: 22px;
+            fill: #444; 
+            transition: opacity 0.2s;
+        }
+
+        /* --- 新增：截屏懸浮按鈕 --- */
+        .screenshot-btn {
+            position: fixed;
+            right: 20px;
+            bottom: 120px;
+            width: 50px;
+            height: 50px;
+            background: var(--orange);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 999;
+            cursor: pointer;
+            border: none;
+        }
+
+        .screenshot-btn:active { transform: scale(0.9); }
     </style>
 </head>
 
 <body>
 
-    <div class="top-bar">
-        <span class="back-icon">←</span>
-        <div class="step-nav" style="flex:1; padding:0;">
-            <span style="color:#999">商家处理</span>
-            <span style="color:#ccc">›</span>
-            <span class="active">2寄回商品</span>
-            <span style="color:#ccc">›</span>
-            <span style="color:#999">3退款结束</span>
+    <div class="status-bar">
+        <div class="time" id="status-time">--:--</div>
+        <div class="icons">
+            <svg viewBox="0 0 24 24"><path d="M12.01 21.49L23.64 7c-.45-.34-4.93-4-11.64-4C5.28 3 .81 6.66.36 7l11.63 14.49.01.01.01-.01z" fill-opacity=".3"/><path d="M0 8l12 15 12-15c-1-1-4-4-12-4s-11 3-12 4z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M2 22h20V2z" fill-opacity=".3"/><path d="M17 7L2 22h15z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.34V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
         </div>
-        <span style="font-size: 20px;">···</span>
+    </div>
+
+    <div class="top-bar">
+        <span class="back-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </span>
+        <div class="step-nav">
+            <span>商家處理</span>
+            <span class="separator">/</span>
+            <span class="active">寄回商品</span>
+            <span class="separator">/</span>
+            <span>退款結束</span>
+        </div>
+        <span class="more-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="black"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+        </span>
     </div>
 
     <div class="header-section">
@@ -311,7 +444,7 @@
             <span class="flash-tag">闪电退货</span>
             <span>因您信誉良好，平台已同意您的退货申请</span>
         </div>
-        <div class="countdown">6天23时59分 后未寄出将撤销退货申请</div>
+        <div class="countdown">6天23时59分 后未寄出将撤銷退货申请</div>
     </div>
 
     <div class="tab-container">
@@ -337,9 +470,9 @@
         <div class="address-row" style="margin-bottom: 8px;">
             <span class="addr-label">商家地址</span>
             <div class="addr-content">
-                北京市昌平区 回龙观1号韵达电商产业园1期4号库
+                <div id="addr-text" class="editable-content" contenteditable="true">北京市昌平区 回龙观1号</div>
                 <div style="margin-top:5px; font-weight:bold;">
-                    张三，138123456123
+                    <span id="contact-text" class="editable-content" contenteditable="true">张三，138123456123</span>
                     <span class="copy-btn">❐ 复制地址</span>
                 </div>
             </div>
@@ -351,9 +484,9 @@
     </div>
 
     <div class="product-card">
-        <img src="https://via.placeholder.com/150" alt="商品图" class="prod-img">
+        <img src="./959427f14b905523.png" alt="商品图" class="prod-img">
         <div class="prod-info">
-            <div class="prod-title">心相印抽纸金装3层100抽纸巾餐巾纸面巾...</div>
+            <div class="prod-title">心相印抽纸金裝3層100抽紙巾餐巾紙面巾...</div>
             <div class="prod-spec">套餐类型:新品80抽1包【拍2单... v</div>
             <div class="tags">
                 <span class="tag">88VIP售后保障包</span>
@@ -372,7 +505,7 @@
     <div style="padding: 0 12px; margin-top:20px;">
         <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
             <span style="font-weight:bold; font-size:15px;">商品不满意？再挑挑看</span>
-            <span style="font-size:12px; color:#999;">换一换 ↻</span>
+            <span style="font-size:12px; color:#999;">換一換 ↻</span>
         </div>
         <div style="display:flex; gap:10px; overflow:hidden;">
             <div style="width:33%; height:80px; background:#fff; border-radius:8px;"></div>
@@ -389,6 +522,86 @@
         <div class="footer-btn">平台介入</div>
         <div class="footer-btn">撤销申请</div>
     </div>
+
+    <div class="android-navbar">
+        <div class="nav-key">
+            <svg viewBox="0 0 24 24"><rect x="5" y="5" width="2" height="14" rx="1" /><rect x="11" y="5" width="2" height="14" rx="1" /><rect x="17" y="5" width="2" height="14" rx="1" /></svg>
+        </div>
+        <div class="nav-key">
+            <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="3.5" stroke="#444" stroke-width="2" fill="none" /></svg>
+        </div>
+        <div class="nav-key">
+            <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" stroke="#444" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </div>
+    </div>
+
+    <button class="screenshot-btn" id="screenshot-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+    </button>
+
+    <script>
+        // 更新狀態欄時間 (24小時制)
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const element = document.getElementById('status-time');
+            if (element) { element.textContent = `${hours}:${minutes}`; }
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // 編輯與複製邏輯
+        const demoAddr = "北京市昌平区 回龙观1号";
+        const demoContact = "张三，138123456123";
+        const addrElement = document.getElementById('addr-text');
+        const contactElement = document.getElementById('contact-text');
+
+        addrElement.addEventListener('focus', function() { if (this.innerText.trim() === demoAddr) { this.innerText = ""; } });
+        addrElement.addEventListener('blur', function() { if (this.innerText.trim() === "") { this.innerText = demoAddr; } });
+        contactElement.addEventListener('focus', function() { if (this.innerText.trim() === demoContact) { this.innerText = ""; } });
+        contactElement.addEventListener('blur', function() { if (this.innerText.trim() === "") { this.innerText = demoContact; } });
+
+        document.querySelector('.copy-btn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            alert('地址已複製');
+        });
+
+        // 優化後的截圖邏輯
+        document.getElementById('screenshot-btn').addEventListener('click', function() {
+            const btn = this;
+            btn.style.display = 'none'; 
+
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const viewportHeight = window.innerHeight;
+            const viewportWidth = window.innerWidth;
+
+            // 速度優化點：
+            // 1. 關閉 logging
+            // 2. 直接限制渲染範圍 (y, height, width) 減少 DOM 遍歷
+            // 3. 確保只捕獲當前可見窗口，降低內存佔用
+            html2canvas(document.body, {
+                useCORS: true,
+                scale: 2,           
+                logging: false,    // 關閉日誌提高速度
+                y: scrollTop,       
+                width: viewportWidth,
+                height: viewportHeight,
+                windowWidth: viewportWidth,
+                windowHeight: viewportHeight,
+                backgroundColor: null // 避免計算背景色
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Docare_' + new Date().getTime() + '.png';
+                link.href = canvas.toDataURL('image/png', 0.8); // 稍微壓縮圖片質量以提高保存速度
+                link.click();
+                btn.style.display = 'flex';
+            }).catch(err => {
+                console.error('截圖失敗:', err);
+                btn.style.display = 'flex';
+            });
+        });
+    </script>
 
 </body>
 
