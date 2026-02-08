@@ -557,7 +557,6 @@
         const addrElement = document.getElementById('addr-text');
         const contactElement = document.getElementById('contact-text');
 
-        // 修復點擊地址未聚焦問題：添加 click 事件強制 focus
         addrElement.addEventListener('click', function() { this.focus(); });
         contactElement.addEventListener('click', function() { this.focus(); });
 
@@ -571,35 +570,56 @@
             alert('地址已複製');
         });
 
-        // 優化後的截圖邏輯
-        document.getElementById('screenshot-btn').addEventListener('click', function() {
+        // 截圖邏輯：進入全屏 -> 截圖 -> 退出全屏
+        document.getElementById('screenshot-btn').addEventListener('click', async function() {
             const btn = this;
+            const docElm = document.documentElement;
+
+            // 1. 隱藏按鈕並嘗試進入全屏
             btn.style.display = 'none'; 
+            
+            try {
+                if (docElm.requestFullscreen) {
+                    await docElm.requestFullscreen();
+                } else if (docElm.webkitRequestFullscreen) { /* Safari/iOS */
+                    await docElm.webkitRequestFullscreen();
+                }
 
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            const viewportHeight = window.innerHeight;
-            const viewportWidth = window.innerWidth;
+                // 稍微延遲確保全屏動畫完成，DOM 佈局穩定
+                await new Promise(resolve => setTimeout(resolve, 300));
 
-            html2canvas(document.body, {
-                useCORS: true,
-                scale: 2,           
-                logging: false,    // 關閉日誌提高速度
-                y: scrollTop,       
-                width: viewportWidth,
-                height: viewportHeight,
-                windowWidth: viewportWidth,
-                windowHeight: viewportHeight,
-                backgroundColor: null // 避免計算背景色
-            }).then(canvas => {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                const viewportHeight = window.innerHeight;
+                const viewportWidth = window.innerWidth;
+
+                const canvas = await html2canvas(document.body, {
+                    useCORS: true,
+                    scale: 2,           
+                    logging: false,
+                    y: scrollTop,       
+                    width: viewportWidth,
+                    height: viewportHeight,
+                    windowWidth: viewportWidth,
+                    windowHeight: viewportHeight,
+                    backgroundColor: null
+                });
+
                 const link = document.createElement('a');
                 link.download = 'Docare_' + new Date().getTime() + '.png';
-                link.href = canvas.toDataURL('image/png', 0.8); // 稍微壓縮圖片質量以提高保存速度
+                link.href = canvas.toDataURL('image/png', 0.8);
                 link.click();
+
+            } catch (err) {
+                console.error('截圖或全屏失敗:', err);
+            } finally {
+                // 2. 退出全屏
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
                 btn.style.display = 'flex';
-            }).catch(err => {
-                console.error('截圖失敗:', err);
-                btn.style.display = 'flex';
-            });
+            }
         });
     </script>
 
