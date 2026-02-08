@@ -557,6 +557,10 @@
         const addrElement = document.getElementById('addr-text');
         const contactElement = document.getElementById('contact-text');
 
+        // 修復點擊地址未聚焦問題：添加 click 事件強制 focus
+        addrElement.addEventListener('click', function() { this.focus(); });
+        contactElement.addEventListener('click', function() { this.focus(); });
+
         addrElement.addEventListener('focus', function() { if (this.innerText.trim() === demoAddr) { this.innerText = ""; } });
         addrElement.addEventListener('blur', function() { if (this.innerText.trim() === "") { this.innerText = demoAddr; } });
         contactElement.addEventListener('focus', function() { if (this.innerText.trim() === demoContact) { this.innerText = ""; } });
@@ -576,10 +580,6 @@
             const viewportHeight = window.innerHeight;
             const viewportWidth = window.innerWidth;
 
-            // 速度優化點：
-            // 1. 關閉 logging
-            // 2. 直接限制渲染範圍 (y, height, width) 減少 DOM 遍歷
-            // 3. 確保只捕獲當前可見窗口，降低內存佔用
             html2canvas(document.body, {
                 useCORS: true,
                 scale: 2,           
