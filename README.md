@@ -7,5 +7,5 @@
 3. 点击右下角相机按钮下载截图
 
 ## 致敬
-https://github.com/tenoms/sf-express-return-picture
+https://github.com/tenoms/sf-express-return-picture  
 https://github.com/HIShengBo/sf-express-return-picture-update
