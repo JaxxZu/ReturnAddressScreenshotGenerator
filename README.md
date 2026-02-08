@@ -1,5 +1,6 @@
-# sf-express-return-picture-update
-根据tenoms顺丰电商退货地址截图模拟的创意。使用geminipro重新构建顺丰电商退货地址截图模拟。
+# ReturnAddressScreenshotGenerator
+生成網購平台退貨地址截圖，用於順豐、中通、神通等快遞使用網購退貨寄件優惠  
+
 # faq
 ## 1.1 地区问题 
 机器识别的时候易识别地区错误
