@@ -1,11 +1,17 @@
-# ReturnAddressScreenshotGenerator
-生成網購平台退貨地址截圖，用於順豐、中通、申通等快遞使用網購退貨寄件優惠  
+# sf-express-return-picture-update
+根据tenoms顺丰电商退货地址截图模拟的创意。使用geminipro重新构建顺丰电商退货地址截图模拟。
+# faq
+## 1.1 地区问题 
+机器识别的时候易识别地区错误
+如 广东省深圳市宝安区，要让系统明白地区
+## 1.2 详细地址和电话
+电话和联系人、详细地址，识别后可以二次编辑。
 
-## 使用步骤
-1. 进入 https://jaxxzu.github.io/ReturnAddressScreenshotGenerator/    
-2. 点击收货地址处填写收货地址  
-3. 点击右下角相机按钮下载截图
+## 1.3 使用方法
+顺丰/顺丰微信小程序--电商退货--上传淘宝截图
+## 1.4 其他问题
+如果以上方法都未解决，请重新找商品退货，然后截图，把截图提供给国内外ai，最好带手机状态栏，但是顺丰系统并不专注状态栏问题。
 
-## 致敬
-https://github.com/tenoms/sf-express-return-picture  
-https://github.com/HIShengBo/sf-express-return-picture-update
+# 致谢
+致谢tenoms大佬提供的思路
+https://github.com/tenoms/sf-express-return-picture
